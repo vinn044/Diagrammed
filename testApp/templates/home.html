@@ -1,10 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Design Practice</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: #172033;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f7f9fc;
+        }
+
+        .container { width: min(1100px, calc(100% - 40px)); margin: 0 auto; }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 72px;
+        }
+
+        .brand { color: #1d4ed8; font-size: 1.1rem; font-weight: 700; text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 16px; }
+        .nav-links a, .logout-button { color: #334155; font-size: .95rem; text-decoration: none; }
+        .logout-button { border: 0; padding: 0; background: none; cursor: pointer; }
+        .logout-form { margin: 0; }
+
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: #fff !important;
+            font-weight: 600;
+            text-decoration: none;
+            background: #2563eb;
+        }
+
+        .button:hover { background: #1d4ed8; }
+
+        .hero { padding: 82px 0 68px; text-align: center; }
+        .eyebrow { margin: 0 0 14px; color: #2563eb; font-size: .9rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+        h1 { max-width: 720px; margin: 0 auto 18px; font-size: clamp(2.3rem, 6vw, 4.4rem); line-height: 1.08; }
+        .hero p { max-width: 610px; margin: 0 auto 28px; color: #526176; font-size: 1.1rem; line-height: 1.65; }
+
+        section { padding: 54px 0; }
+        h2 { margin: 0 0 10px; text-align: center; font-size: 2rem; }
+        .section-intro { margin: 0 auto 34px; color: #526176; text-align: center; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { padding: 26px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(15, 23, 42, .04); }
+        .number { display: grid; width: 32px; height: 32px; place-items: center; margin-bottom: 16px; border-radius: 50%; color: #1d4ed8; font-weight: 700; background: #dbeafe; }
+        .card h3 { margin: 0 0 9px; font-size: 1.1rem; }
+        .card p { margin: 0; color: #526176; line-height: 1.55; }
+        footer { padding: 26px 0; border-top: 1px solid #e2e8f0; color: #64748b; font-size: .9rem; text-align: center; }
+
+        @media (max-width: 700px) {
+            .grid { grid-template-columns: 1fr; }
+            .hero { padding-top: 58px; }
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome back user</h1>
-    <p>This is the home page.</p>
+    <header class="container">
+        <nav>
+            <a class="brand" href="{% url 'home' %}">System Design Practice</a>
+            <div class="nav-links">
+                {% if user.is_authenticated %}
+                    <span>Welcome, {{ user.username }}</span>
+                    <form class="logout-form" method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button class="logout-button" type="submit">Log out</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Log in</a>
+                    <a class="button" href="{% url 'register' %}">Sign up</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero container">
+            <p class="eyebrow">System design interview practice</p>
+            <h1>Practice system design with confidence.</h1>
+            <p>Work through realistic design prompts, build your solution, and learn how to improve your architecture.</p>
+            <a class="button" href="#example-prompts">Start practicing</a>
+        </section>
+
+        <section class="container">
+            <h2>How it works</h2>
+            <p class="section-intro">A focused workflow for preparing for system-design interviews.</p>
+            <div class="grid">
+                <article class="card">
+                    <div class="number">1</div>
+                    <h3>Choose a problem</h3>
+                    <p>Select a realistic system-design challenge to practice.</p>
+                </article>
+                <article class="card">
+                    <div class="number">2</div>
+                    <h3>Build your solution</h3>
+                    <p>Map out the services, data flow, and tradeoffs in your design.</p>
+                </article>
+                <article class="card">
+                    <div class="number">3</div>
+                    <h3>Receive feedback</h3>
+                    <p>Review AI powered feedback and use it to strengthen your next attempt.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="container" id="example-prompts">
+            <h2>Example prompts</h2>
+            <p class="section-intro">More prompts are coming soon.</p>
+            <div class="grid">
+                <article class="card"><h3>Design a URL Shortener</h3><p>Build a service that converts long links into short, shareable URLs.</p></article>
+                <article class="card"><h3>Design a Chat Application</h3><p>Design real-time messaging for individual and group conversations.</p></article>
+                <article class="card"><h3>Design an Instagram Feed</h3><p>Plan how users can upload content and view a personalized feed.</p></article>
+            </div>
+        </section>
+    </main>
+
+    <footer>System Design Practice</footer>
 </body>
 </html>
