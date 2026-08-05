@@ -48,21 +48,24 @@
 
         .prompt-card:hover { border-color: #bfdbfe; box-shadow: 0 8px 20px rgba(37, 99, 235, .10); }
         .tag { display: inline-block; width: fit-content; margin-bottom: 17px; padding: 5px 10px; border-radius: 999px; color: #1d4ed8; font-size: .8rem; font-weight: 700; background: #dbeafe; }
-        .tag.medium { color: #9a5800; background: #fef3c7; }
-        .tag.hard { color: #b42318; background: #fee4e2; }
+        .tag.intermediate { color: #9a5800; background: #fef3c7; }
+        .tag.advanced { color: #b42318; background: #fee4e2; }
         h2 { margin: 0 0 10px; font-size: 1.25rem; }
         .prompt-card p { margin: 0; color: #526176; line-height: 1.55; }
+        .start-form { margin-top: auto; }
         .button {
-            display: inline-block;
+            display: block;
             width: 100%;
-            margin-top: auto;
             padding: 11px 16px;
+            border: 0;
             border-radius: 8px;
             color: #fff;
+            font: inherit;
             font-weight: 600;
             text-align: center;
             text-decoration: none;
             background: #2563eb;
+            cursor: pointer;
         }
 
         .button:hover { background: #1d4ed8; }
@@ -96,26 +99,19 @@
         <p class="intro">Pick a prompt, think through the requirements, and create an architecture you can explain with confidence.</p>
 
         <section class="prompt-grid" aria-label="System design prompts">
+            {% for prompt in prompts %}
             <article class="prompt-card">
-                <span class="tag">Beginner</span>
-                <h2>Design a URL Shortener</h2>
-                <p>Build a service that converts long links into short, shareable URLs at scale.</p>
-                <a class="button" href="{% url 'session' %}">Start session</a>
+                <span class="tag {{ prompt.difficulty }}">{{ prompt.get_difficulty_display }}</span>
+                <h2>{{ prompt.title }}</h2>
+                <p>{{ prompt.description }}</p>
+                <form class="start-form" method="post" action="{% url 'start_session' prompt.id %}">
+                    {% csrf_token %}
+                    <button class="button" type="submit">Start session</button>
+                </form>
             </article>
-
-            <article class="prompt-card">
-                <span class="tag medium">Intermediate</span>
-                <h2>Design a Chat Application</h2>
-                <p>Design real-time messaging for individual and group conversations.</p>
-                <a class="button" href="{% url 'session' %}">Start session</a>
-            </article>
-
-            <article class="prompt-card">
-                <span class="tag hard">Advanced</span>
-                <h2>Design an Instagram Feed</h2>
-                <p>Plan how users upload content and view a personalized feed.</p>
-                <a class="button" href="{% url 'session' %}">Start session</a>
-            </article>
+            {% empty %}
+                <p>No practice prompts are available yet.</p>
+            {% endfor %}
         </section>
     </main>
 

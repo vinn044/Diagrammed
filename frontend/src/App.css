@@ -39,6 +39,11 @@
     cursor: pointer;
   }
 
+  .whiteboard-header button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+  }
+
   .whiteboard {
     height: calc(100vh - 86px);
     background: white;
