@@ -4,6 +4,9 @@ from django.contrib.auth.forms import UserCreationForm
 def home(request):
     return render(request, 'home.html', {})
 
+def promptselection(request):
+      return render(request, 'promptselection.html')
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
