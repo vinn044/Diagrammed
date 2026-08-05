@@ -1,0 +1,45 @@
+.whiteboard-page {
+    min-height: 100vh;
+    background: #f7f9fc;
+    color: #172033;
+  }
+
+  .whiteboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 86px;
+    padding: 0 32px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+  }
+
+  .whiteboard-header p {
+    margin: 0 0 4px;
+    color: #2563eb;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .whiteboard-header h1 {
+    margin: 0;
+    color: #172033;
+    font-size: 1.25rem;
+  }
+
+  .whiteboard-header button {
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    background: #2563eb;
+    cursor: pointer;
+  }
+
+  .whiteboard {
+    height: calc(100vh - 86px);
+    background: white;
+  }

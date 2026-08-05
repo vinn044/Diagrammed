@@ -7,6 +7,9 @@ def home(request):
 def promptselection(request):
       return render(request, 'promptselection.html')
 
+def session(request):
+      return render(request, 'session.html')
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
