@@ -20,9 +20,9 @@ This platform came to mind since I've seen an abundance of interactive resources
 ### Sprint Plan
 
 **Sprint 1 (Weeks 1-2): Foundation**
-- Set up Django project, environment, repo
-- Implement user authentication (register/login)
-- Design and implement core data models (User, Prompt, Session)
+- Set up Django project, environment, repo (complete)
+- Implement user authentication (register/login) (complete)
+- Design and implement core data models (User, Prompt, Session) (complete)
 
 **Sprint 2 (Weeks 3-4): Core Feature - Prompts & Diagram**
 - CRUD for design prompts (admin-facing)
