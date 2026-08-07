@@ -25,7 +25,7 @@ This platform came to mind since I've seen an abundance of interactive resources
 - Design and implement core data models (User, Prompt, Session) (complete)
 
 **Sprint 2 (Weeks 3-4): Core Feature - Prompts & Diagram**
-- Save/load diagram state to backend (complete)
+- Save/load diagram state to backend (in-progress)
 - Build diagram canvas (frontend) with draggable components (in-progress)
 - CRUD for design prompts (admin-facing)
 
