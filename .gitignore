@@ -8,7 +8,11 @@
 venv/
 .venv/
 env/
-virt
+virt/
+
+# Local secrets and OS metadata
+.env
+.DS_Store
 
 
 # Data bases
