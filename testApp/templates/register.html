@@ -1,9 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Register</title>
+<link rel="icon" href="{% static 'branding/diagrammed-mark.svg' %}" type="image/svg+xml">
 
 <style>
 * {
@@ -36,6 +38,20 @@ h2 {
     color: #222;
     font-weight: 600;
 }
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-bottom: 24px;
+    color: #172033;
+    font-size: 18px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-brand img { width: 32px; height: 32px; }
 
 .input-group {
     margin-bottom: 18px;
@@ -101,6 +117,10 @@ button:hover {
 <body>
 
 <div class="login-container">
+    <a class="auth-brand" href="{% url 'home' %}">
+        <img src="{% static 'branding/diagrammed-mark.svg' %}" alt="">
+        <span>Diagrammed</span>
+    </a>
     <h2>Register</h2>
 
     <form method="post">

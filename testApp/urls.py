@@ -12,4 +12,5 @@ urlpatterns = [
     path('prompts/<int:prompt_id>/start/', views.start_session, name='start_session'),
     path('session/<int:session_id>/', views.session, name='session'),
     path('session/<int:session_id>/save/', views.save_session, name='save_session'),
+    path('session/<int:session_id>/answers/save/', views.save_session_answers, name='save_session_answers'),
 ]

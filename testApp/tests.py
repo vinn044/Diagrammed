@@ -138,3 +138,36 @@ class PracticeSessionViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    def test_save_session_answers_stores_clarification_answers(self):
+        practice_session = PracticeSession.objects.create(
+            user=self.user,
+            prompt=self.prompt,
+        )
+        answers = {"0": "The service should prioritize availability."}
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("save_session_answers", args=[practice_session.id]),
+            data=json.dumps({"answers": answers}),
+            content_type="application/json",
+        )
+
+        practice_session.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(practice_session.clarification_answers, answers)
+
+    def test_user_cannot_save_answers_to_another_users_session(self):
+        practice_session = PracticeSession.objects.create(
+            user=self.user,
+            prompt=self.prompt,
+        )
+        self.client.force_login(self.other_user)
+
+        response = self.client.post(
+            reverse("save_session_answers", args=[practice_session.id]),
+            data=json.dumps({"answers": {"0": "Not my session"}}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
