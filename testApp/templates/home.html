@@ -1,16 +1,23 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Design Practice</title>
+    <link rel="icon" href="{% static 'branding/diagrammed-mark.svg' %}" type="image/svg+xml">
     <style>
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        button, input, textarea { font: inherit; }
 
         body {
             margin: 0;
+            overflow-x: hidden;
             color: #172033;
-            font-family: Arial, Helvetica, sans-serif;
             background: #f7f9fc;
         }
 
@@ -23,7 +30,8 @@
             min-height: 72px;
         }
 
-        .brand { color: #1d4ed8; font-size: 1.1rem; font-weight: 700; text-decoration: none; }
+        .brand { display: inline-flex; align-items: center; gap: 9px; color: #172033; font-size: 1.1rem; font-weight: 700; text-decoration: none; }
+        .brand img { width: 30px; height: 30px; }
         .nav-links { display: flex; align-items: center; gap: 16px; }
         .nav-links a, .logout-button { color: #334155; font-size: .95rem; text-decoration: none; }
         .logout-button { border: 0; padding: 0; background: none; cursor: pointer; }
@@ -41,31 +49,160 @@
 
         .button:hover { background: #1d4ed8; }
 
-        .hero { padding: 82px 0 68px; text-align: center; }
-        .eyebrow { margin: 0 0 14px; color: #2563eb; font-size: .9rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
-        h1 { max-width: 720px; margin: 0 auto 18px; font-size: clamp(2.3rem, 6vw, 4.4rem); line-height: 1.08; }
+        .homepage-main {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background: #f8fbff;
+            --mouse-x: 50%;
+            --mouse-y: 18%;
+        }
+
+        .hero-shell {
+            position: relative;
+            min-height: 700px;
+            padding: 0;
+        }
+
+        .architecture-preview {
+            position: relative;
+            width: min(720px, calc(100vw - 48px));
+            height: 190px;
+            margin: 52px auto 0;
+            border: 1px solid rgba(147, 197, 253, .65);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, .68);
+            box-shadow: 0 18px 50px rgba(37, 99, 235, .08);
+            backdrop-filter: blur(8px);
+        }
+
+        .grid-background {
+            position: absolute;
+            z-index: -2;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(37, 99, 235, .12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37, 99, 235, .12) 1px, transparent 1px);
+            background-size: 44px 44px;
+            animation: grid-drift 18s linear infinite;
+        }
+
+        .grid-glow {
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle 260px at var(--mouse-x) var(--mouse-y), rgba(37, 99, 235, .18), transparent 72%);
+        }
+
+        .hero-node {
+            position: absolute;
+            display: grid;
+            min-width: 74px;
+            min-height: 42px;
+            place-items: center;
+            padding: 8px 12px;
+            border: 1px solid #93c5fd;
+            border-radius: 10px;
+            z-index: 2;
+            color: #172033;
+            font-size: .7rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, .82);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, .12);
+            backdrop-filter: blur(8px);
+            animation: node-float 5s ease-in-out infinite;
+        }
+
+        .hero-node.one { top: 74px; left: 22px; }
+        .hero-node.two { top: 74px; left: 166px; animation-delay: -1.5s; }
+        .hero-node.three { top: 74px; left: 324px; animation-delay: -3s; }
+        .hero-node.four { top: 18px; left: 490px; animation-delay: -2s; }
+        .hero-node.five { top: 128px; left: 490px; animation-delay: -4s; }
+        .hero-node.six { top: 74px; right: 18px; animation-delay: -.8s; }
+
+        .architecture-connections {
+            position: absolute;
+            z-index: 1;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .architecture-connections > path {
+            fill: none;
+            stroke: rgba(37, 99, 235, .42);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-dasharray: 7 7;
+            vector-effect: non-scaling-stroke;
+            animation: connection-flow 8s linear infinite;
+        }
+
+        .hero { position: relative; z-index: 3; padding: 82px 0 68px; text-align: center; }
+        .eyebrow { margin: 0 0 14px; color: #172033; font-size: .9rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+        h1 { max-width: 790px; margin: 0 auto 18px; font-size: clamp(2.7rem, 6vw, 4.8rem); line-height: 1.04; letter-spacing: -.04em; }
+        h1 span { color: #2563eb; }
         .hero p { max-width: 610px; margin: 0 auto 28px; color: #526176; font-size: 1.1rem; line-height: 1.65; }
+        .hero .eyebrow { color: #172033; }
+
+        .hero-actions { display: flex; justify-content: center; gap: 12px; }
+        .secondary-button { display: inline-block; padding: 11px 19px; border: 1px solid #cbd5e1; border-radius: 8px; color: #172033; font-weight: 600; text-decoration: none; background: rgba(255,255,255,.8); }
 
         section { padding: 54px 0; }
+        .homepage-main > section:not(.hero-shell) { position: relative; }
         h2 { margin: 0 0 10px; text-align: center; font-size: 2rem; }
         .section-intro { margin: 0 auto 34px; color: #526176; text-align: center; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .card { padding: 26px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(15, 23, 42, .04); }
+        .card { padding: 26px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(15, 23, 42, .04); transition: transform .2s ease, box-shadow .2s ease; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(15, 23, 42, .09); }
         .number { display: grid; width: 32px; height: 32px; place-items: center; margin-bottom: 16px; border-radius: 50%; color: #1d4ed8; font-weight: 700; background: #dbeafe; }
         .card h3 { margin: 0 0 9px; font-size: 1.1rem; }
         .card p { margin: 0; color: #526176; line-height: 1.55; }
-        footer { padding: 26px 0; border-top: 1px solid #e2e8f0; color: #64748b; font-size: .9rem; text-align: center; }
+        footer { padding: 26px 0; border-top: 1px solid #e2e8f0; color: #172033; font-size: .9rem; text-align: center; }
+
+        @keyframes grid-drift {
+            to { background-position: 44px 44px; }
+        }
+
+        @keyframes node-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes connection-flow {
+            to { stroke-dashoffset: -56; }
+        }
 
         @media (max-width: 700px) {
             .grid { grid-template-columns: 1fr; }
             .hero { padding-top: 58px; }
+            .hero-shell { min-height: 650px; }
+            .architecture-preview { height: 150px; margin-top: 38px; overflow: hidden; }
+            .hero-node { min-width: 64px; padding: 7px; font-size: .62rem; }
+            .hero-node.one { left: 16px; top: 54px; }
+            .hero-node.two { display: none; }
+            .hero-node.three { left: calc(50% - 36px); top: 54px; }
+            .hero-node.four, .hero-node.six { display: none; }
+            .hero-node.five { left: auto; right: 16px; top: 54px; }
+            .hero-actions { flex-direction: column; align-items: center; }
+            .architecture-connections { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .grid-background, .hero-node, .architecture-connections > path { animation: none; }
+            .card { transition: none; }
         }
     </style>
 </head>
 <body>
     <header class="container">
         <nav>
-            <a class="brand" href="{% url 'home' %}">Diagrammed</a>
+            <a class="brand" href="{% url 'home' %}">
+                <img src="{% static 'branding/diagrammed-mark.svg' %}" alt="">
+                <span>Diagrammed</span>
+            </a>
             <div class="nav-links">
                 {% if user.is_authenticated %}
                     <span>Welcome, {{ user.username }}</span>
@@ -81,12 +218,39 @@
         </nav>
     </header>
 
-    <main>
-        <section class="hero container">
-            <p class="eyebrow">Diagrammed</p>
-            <h1>Practice system design with confidence.</h1>
-            <p>Work through realistic design prompts, build your solution, and learn how to improve your architecture.</p>
-            <a class="button" href="{% url 'promptselection' %}">Start practicing</a>
+    <main class="homepage-main">
+        <div class="grid-background" aria-hidden="true"></div>
+        <div class="grid-glow" aria-hidden="true"></div>
+        <section class="hero-shell" aria-labelledby="hero-title">
+            <div class="hero container">
+                <p class="eyebrow">Diagrammed</p>
+                <h1 id="hero-title">Design systems. <span>Explain your thinking.</span></h1>
+                <p>Practice realistic system-design interviews on an interactive canvas, then turn every decision into feedback you can use.</p>
+                <div class="hero-actions">
+                    <a class="button" href="{% url 'promptselection' %}">Start practicing</a>
+                    <a class="secondary-button" href="#example-prompts">Explore prompts</a>
+                </div>
+                <div class="architecture-preview" aria-label="Example system architecture">
+                    <svg class="architecture-connections" viewBox="0 0 720 190" preserveAspectRatio="none" aria-hidden="true">
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" stroke="none"></path>
+                            </marker>
+                        </defs>
+                        <path d="M96 96 L166 96" marker-end="url(#arrow)"></path>
+                        <path d="M252 96 L324 96" marker-end="url(#arrow)"></path>
+                        <path d="M406 88 C445 72 455 44 490 40" marker-end="url(#arrow)"></path>
+                        <path d="M406 102 C445 118 455 145 490 150" marker-end="url(#arrow)"></path>
+                        <path d="M406 96 L628 96" marker-end="url(#arrow)"></path>
+                    </svg>
+                    <span class="hero-node one">Client</span>
+                    <span class="hero-node two">Load Balancer</span>
+                    <span class="hero-node three">API Server</span>
+                    <span class="hero-node four">Cache</span>
+                    <span class="hero-node five">Database</span>
+                    <span class="hero-node six">Message Queue</span>
+                </div>
+            </div>
         </section>
 
         <section class="container">
@@ -123,5 +287,15 @@
     </main>
 
     <footer>Diagrammed</footer>
+    <script>
+        const homepage = document.querySelector('.homepage-main');
+        if (homepage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            homepage.addEventListener('pointermove', (event) => {
+                const bounds = homepage.getBoundingClientRect();
+                homepage.style.setProperty('--mouse-x', `${event.clientX - bounds.left}px`);
+                homepage.style.setProperty('--mouse-y', `${event.clientY - bounds.top}px`);
+            });
+        }
+    </script>
 </body>
 </html>

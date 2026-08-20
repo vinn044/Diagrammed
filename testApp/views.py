@@ -39,8 +39,13 @@ def session(request, session_id):
     session_config = {
         'id': practice_session.id,
         'promptTitle': practice_session.prompt.title,
+        'promptDescription': practice_session.prompt.description,
+        'promptInstructions': practice_session.prompt.instructions,
+        'clarifyingQuestions': practice_session.prompt.clarifying_questions,
+        'clarificationAnswers': practice_session.clarification_answers,
         'diagramData': practice_session.diagram_data,
         'saveUrl': reverse('save_session', args=[practice_session.id]),
+        'answerSaveUrl': reverse('save_session_answers', args=[practice_session.id]),
     }
     return render(
         request,
@@ -71,6 +76,30 @@ def save_session(request, session_id):
 
     practice_session.diagram_data = diagram_data
     practice_session.save(update_fields=['diagram_data', 'updated_at'])
+    return JsonResponse({'saved': True})
+
+
+@login_required
+@require_POST
+def save_session_answers(request, session_id):
+    practice_session = get_object_or_404(
+        PracticeSession,
+        id=session_id,
+        user=request.user,
+    )
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+    answers = payload.get('answers') if isinstance(payload, dict) else None
+    if not isinstance(answers, dict):
+        return JsonResponse({'error': 'Answers must be an object.'}, status=400)
+    if not all(isinstance(key, str) and isinstance(value, str) for key, value in answers.items()):
+        return JsonResponse({'error': 'Answer keys and values must be strings.'}, status=400)
+
+    practice_session.clarification_answers = answers
+    practice_session.save(update_fields=['clarification_answers', 'updated_at'])
     return JsonResponse({'saved': True})
 
 def register(request):
