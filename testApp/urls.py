@@ -13,4 +13,5 @@ urlpatterns = [
     path('session/<int:session_id>/', views.session, name='session'),
     path('session/<int:session_id>/save/', views.save_session, name='save_session'),
     path('session/<int:session_id>/answers/save/', views.save_session_answers, name='save_session_answers'),
+    path('session/<int:session_id>/feedback/', views.get_ai_feedback, name='get_ai_feedback'),
 ]

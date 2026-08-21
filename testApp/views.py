@@ -9,6 +9,8 @@ from django.views.decorators.http import require_POST
 
 from .models import PracticeSession, Prompt
 
+from .services import evaluate_answer
+
 def home(request):
     return render(request, 'home.html', {})
 
@@ -46,6 +48,7 @@ def session(request, session_id):
         'diagramData': practice_session.diagram_data,
         'saveUrl': reverse('save_session', args=[practice_session.id]),
         'answerSaveUrl': reverse('save_session_answers', args=[practice_session.id]),
+        'feedbackUrl': reverse('get_ai_feedback', args=[practice_session.id])
     }
     return render(
         request,
@@ -111,3 +114,24 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'register.html', {'form': form})
+
+@login_required
+@require_POST
+def get_ai_feedback(request, session_id):
+    practice_session = get_object_or_404(
+        PracticeSession.objects.select_related('prompt'),
+        id=session_id,
+        user=request.user,
+    )
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+    question = payload.get('question')
+    answer = payload.get('answer')
+    if not isinstance(question, str) or not isinstance(answer, str):
+        return JsonResponse({'error': 'question and answer must be strings.'}, status=400)
+
+    feedback = evaluate_answer(practice_session.prompt.title, question, answer)
+    return JsonResponse({'feedback': feedback})
