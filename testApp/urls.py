@@ -13,4 +13,7 @@ urlpatterns = [
     path('session/<int:session_id>/', views.session, name='session'),
     path('session/<int:session_id>/save/', views.save_session, name='save_session'),
     path('session/<int:session_id>/answers/save/', views.save_session_answers, name='save_session_answers'),
+    path('session/<int:session_id>/grade/', views.grade_session, name='grade_session'),
+    path('session/<int:session_id>/stage/review/', views.review_session_stage, name='review_session_stage'),
+    path('session/<int:session_id>/stage/advance/', views.advance_session_stage, name='advance_session_stage'),
 ]

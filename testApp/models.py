@@ -46,6 +46,10 @@ class PracticeSession(models.Model):
     )
     diagram_data = models.JSONField(default=dict, blank=True)
     clarification_answers = models.JSONField(default=dict, blank=True)
+    ai_feedback = models.JSONField(default=dict, blank=True)
+    graded_at = models.DateTimeField(null=True, blank=True)
+    current_stage = models.PositiveSmallIntegerField(default=0)
+    stage_feedback = models.JSONField(default=dict, blank=True)
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
