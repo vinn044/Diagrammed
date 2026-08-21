@@ -35,6 +35,6 @@ This platform came to mind since I've seen an abundance of interactive resources
 - Display feedback to user after session submission (complete)
 
 **Sprint 4 (Weeks 7-8): Polish & Testing**
-- Session history / progress dashboard (complete)
+- Deployment with Render (complete)
 - Testing (complete)
 - UI polish, bug fixes, final documentation (complete)
