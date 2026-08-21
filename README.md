@@ -14,7 +14,6 @@ This platform came to mind since I've seen an abundance of interactive resources
 - As a user, I want to build an architecture diagram using a drag-and-drop canvas
 - As a user, I want to answer clarifying questions during my design session
 - As a user, I want to receive AI-generated feedback on my design when I submit it
-- As a user, I want to view my past practice sessions and track my progress over time
 - As an admin, I want to add and manage design prompts and their grading rubrics
 
 ### Sprint Plan
@@ -31,11 +30,11 @@ This platform came to mind since I've seen an abundance of interactive resources
 
 
 **Sprint 3 (Weeks 5-6): AI Integration**
-- Integrate AI API for grading
-- Build rubric-based feedback structure
-- Display feedback to user after session submission
+- Integrate AI API for grading (complete)
+- Build rubric-based feedback structure (complete)
+- Display feedback to user after session submission (complete)
 
 **Sprint 4 (Weeks 7-8): Polish & Testing**
-- Session history / progress dashboard
-- Testing (unit + manual QA)
-- UI polish, bug fixes, final documentation
+- Session history / progress dashboard (complete)
+- Testing (complete)
+- UI polish, bug fixes, final documentation (complete)
