@@ -37,44 +37,44 @@ import { useCallback, useState } from 'react'
 
   const startingNodes = [
     {
-      id: 'client',
-      position: { x: 80, y: 140 },
-      data: { label: 'Client' },
-    },
-    {
-      id: 'api',
-      position: { x: 380, y: 140 },
-      data: { label: 'API Server' },
-    },
-    {
-      id: 'database',
-      position: { x: 680, y: 140 },
-      data: { label: 'Database' },
+      id: 'starting-node',
+      type: 'editable',
+      position: { x: 320, y: 180 },
+      data: { label: '', shape: 'rectangle' },
     },
   ]
 
-  const startingEdges = [
-    { id: 'client-api', source: 'client', target: 'api' },
-    { id: 'api-database', source: 'api', target: 'database' },
-  ]
+  const startingEdges = []
 
   const sessionConfigElement = document.getElementById('session-config')
   const sessionConfig = sessionConfigElement
     ? JSON.parse(sessionConfigElement.textContent)
     : {}
 
-  const defaultInterviewSteps = [
+  const practiceStages = [
     {
-      stage: 'Clarify requirements',
-      question: 'What functional and non-functional requirements would you clarify first?',
+      title: 'Requirements',
+      instruction: 'Add note shapes for the functional and non-functional requirements. Include the most important constraints.',
     },
     {
-      stage: 'Define the scope',
-      question: 'What assumptions and constraints will guide your design?',
+      title: 'Estimates and constraints',
+      instruction: 'Add assumptions for traffic, storage, latency, availability, and any important limits.',
     },
     {
-      stage: 'High-level design',
-      question: 'Explain the main flow through the system you are building.',
+      title: 'High-level architecture',
+      instruction: 'Add and connect the main system components. Use notes to explain the primary request flows.',
+    },
+    {
+      title: 'Data design',
+      instruction: 'Show the main stored data, keys, access patterns, and why your storage choices fit the problem.',
+    },
+    {
+      title: 'Scaling and reliability',
+      instruction: 'Update the design for growth and failure. Address bottlenecks, redundancy, recovery, and tradeoffs.',
+    },
+    {
+      title: 'Final review',
+      instruction: 'Review the complete board, fill any gaps, then submit it for final category scores and an overall average.',
     },
   ]
 
@@ -93,17 +93,17 @@ import { useCallback, useState } from 'react'
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
     const [saveStatus, setSaveStatus] = useState('Save diagram')
     const [selection, setSelection] = useState({ nodes: [], edges: [] })
-    const [interviewStep, setInterviewStep] = useState(0)
-    const [interviewAnswers, setInterviewAnswers] = useState(sessionConfig.clarificationAnswers || {})
-    const [answerSaveStatus, setAnswerSaveStatus] = useState('')
-
-    const promptQuestions = sessionConfig.clarifyingQuestions?.length
-      ? sessionConfig.clarifyingQuestions.map((question, index) => ({
-          stage: index === 0 ? 'Clarify requirements' : `Question ${index + 1}`,
-          question: typeof question === 'string' ? question : question.question,
-        }))
-      : defaultInterviewSteps
-    const currentInterviewStep = promptQuestions[interviewStep]
+    const [feedback, setFeedback] = useState(
+      sessionConfig.feedback?.strengths && sessionConfig.feedback?.improvements
+        ? sessionConfig.feedback
+        : null,
+    )
+    const [gradeStatus, setGradeStatus] = useState('')
+    const [currentStage, setCurrentStage] = useState(sessionConfig.currentStage || 0)
+    const [stageFeedback, setStageFeedback] = useState(sessionConfig.stageFeedback || {})
+    const [stageStatus, setStageStatus] = useState('')
+    const activeStage = practiceStages[currentStage]
+    const activeReview = stageFeedback[currentStage]
 
     const updateNodeLabel = useCallback((nodeId, label) => {
       setNodes((currentNodes) => currentNodes.map((node) => (
@@ -150,24 +150,90 @@ import { useCallback, useState } from 'react'
       setSelection({ nodes: [], edges: [] })
     }, [selection, setEdges, setNodes])
 
-    const saveInterviewAnswers = useCallback(async (advance = false) => {
-      setAnswerSaveStatus('Saving...')
+    const gradeDesign = useCallback(async () => {
+      setGradeStatus('Grading...')
       try {
-        const response = await fetch(sessionConfig.answerSaveUrl, {
+        const response = await fetch(sessionConfig.gradeUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
           },
-          body: JSON.stringify({ answers: interviewAnswers }),
+          body: JSON.stringify({
+            diagram: {
+              nodes: nodes.map((node) => ({
+                ...node,
+                data: {
+                  label: node.data.label,
+                  shape: node.data.shape || 'rectangle',
+                },
+              })),
+              edges,
+            },
+            answers: {},
+          }),
         })
-        if (!response.ok) throw new Error('Save failed')
-        setAnswerSaveStatus('Saved')
-        if (advance) setInterviewStep((step) => step + 1)
-      } catch {
-        setAnswerSaveStatus('Try again')
+        const result = await response.json()
+        if (!response.ok) throw new Error(result.error || 'Grading failed')
+        setFeedback(result.feedback)
+        setGradeStatus('Graded')
+      } catch (error) {
+        setGradeStatus(error.message)
       }
-    }, [interviewAnswers])
+    }, [edges, nodes])
+
+    const reviewStage = useCallback(async () => {
+      setStageStatus('Reviewing...')
+      try {
+        const response = await fetch(sessionConfig.reviewStageUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: JSON.stringify({
+            stageIndex: currentStage,
+            stage: activeStage,
+            diagram: {
+              nodes: nodes.map((node) => ({
+                ...node,
+                data: {
+                  label: node.data.label,
+                  shape: node.data.shape || 'rectangle',
+                },
+              })),
+              edges,
+            },
+          }),
+        })
+        const result = await response.json()
+        if (!response.ok) throw new Error(result.error || 'Review failed')
+        setStageFeedback((reviews) => ({ ...reviews, [currentStage]: result.review }))
+        setStageStatus('Reviewed')
+      } catch (error) {
+        setStageStatus(error.message)
+      }
+    }, [activeStage, currentStage, edges, nodes])
+
+    const continueToNextStage = useCallback(async () => {
+      const nextStage = currentStage + 1
+      setStageStatus('Saving...')
+      try {
+        const response = await fetch(sessionConfig.advanceStageUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: JSON.stringify({ stage: nextStage }),
+        })
+        if (!response.ok) throw new Error('Could not continue')
+        setCurrentStage(nextStage)
+        setStageStatus('')
+      } catch (error) {
+        setStageStatus(error.message)
+      }
+    }, [currentStage])
 
     const onConnect = useCallback(
       (connection) => setEdges((currentEdges) => addEdge(connection, currentEdges)),
@@ -251,52 +317,86 @@ import { useCallback, useState } from 'react'
             <Controls />
           </ReactFlow>
           </div>
-          <aside className="interview-panel">
+          <aside className="interview-panel ai-panel">
             <div className="prompt-summary">
               <p className="panel-eyebrow">Design prompt</p>
               <h2>{sessionConfig.promptTitle || 'Practice diagram'}</h2>
               <p>{sessionConfig.promptDescription || 'Work through the design one step at a time.'}</p>
             </div>
 
-            <div className="interview-step">
-              <p className="panel-eyebrow">
-                Step {interviewStep + 1} of {promptQuestions.length}
-              </p>
-              <h3>{currentInterviewStep.stage}</h3>
-              <p>{currentInterviewStep.question}</p>
-              <textarea
-                value={interviewAnswers[interviewStep] || ''}
-                placeholder="Explain your thinking..."
-                onChange={(event) => {
-                  setAnswerSaveStatus('')
-                  setInterviewAnswers((answers) => ({
-                    ...answers,
-                    [interviewStep]: event.target.value,
-                  }))
-                }}
-              />
-              <div className="step-actions">
-                <button
-                  type="button"
-                  disabled={interviewStep === 0}
-                  onClick={() => setInterviewStep((step) => step - 1)}
-                >
-                  Back
-                </button>
-                <button
-                  className="continue-button"
-                  type="button"
-                  disabled={answerSaveStatus === 'Saving...'}
-                  onClick={() => saveInterviewAnswers(interviewStep < promptQuestions.length - 1)}
-                >
-                  {answerSaveStatus === 'Saving...'
-                    ? 'Saving...'
-                    : interviewStep === promptQuestions.length - 1
-                      ? 'Save response'
-                      : 'Save & continue'}
-                </button>
+            <div className="assistant-message">
+              <div>
+                <p className="panel-eyebrow">Stage {currentStage + 1} of {practiceStages.length}</p>
+                <strong>{activeStage.title}</strong>
+                <p>{activeStage.instruction}</p>
               </div>
-              <small>{answerSaveStatus || 'Responses are saved with this session.'}</small>
+            </div>
+
+            <div className="grading-panel">
+              {currentStage < practiceStages.length - 1 ? (
+                <>
+                  <button type="button" onClick={reviewStage} disabled={stageStatus === 'Reviewing...'}>
+                    {stageStatus === 'Reviewing...' ? 'Reviewing stage...' : `Review ${activeStage.title.toLowerCase()}`}
+                  </button>
+                  {activeReview && (
+                    <div className="stage-review">
+                      <div className="stage-score-row">
+                        <strong>Stage score</strong>
+                        <span>{activeReview.score}/100</span>
+                      </div>
+                      <div className="score-meter" aria-label={`Stage score ${activeReview.score} out of 100`}>
+                        <span
+                          className={activeReview.score < 40 ? 'low' : activeReview.score < 70 ? 'medium' : 'high'}
+                          style={{ width: `${activeReview.score}%` }}
+                        />
+                      </div>
+                      <p>{activeReview.summary}</p>
+                      {!!activeReview.strengths.length && (
+                        <><h4>Working well</h4><ul>{activeReview.strengths.map((item) => <li key={item}>{item}</li>)}</ul></>
+                      )}
+                      {!!activeReview.improvements.length && (
+                        <><h4>Before moving on</h4><ul>{activeReview.improvements.map((item) => <li key={item}>{item}</li>)}</ul></>
+                      )}
+                      <button type="button" onClick={continueToNextStage} disabled={!activeReview.ready_to_continue}>
+                        Continue to next stage
+                      </button>
+                    </div>
+                  )}
+                  {stageStatus && !['Reviewed', 'Reviewing...', 'Saving...'].includes(stageStatus) && (
+                    <p className="grading-error">{stageStatus}</p>
+                  )}
+                </>
+              ) : (
+                <button type="button" onClick={gradeDesign} disabled={gradeStatus === 'Grading...'}>
+                  {gradeStatus === 'Grading...' ? 'Grading final design...' : 'Submit final design'}
+                </button>
+              )}
+              {gradeStatus && gradeStatus !== 'Graded' && gradeStatus !== 'Grading...' && (
+                <p className="grading-error">{gradeStatus}</p>
+              )}
+              {feedback && (
+                <div className="feedback-card">
+                  <div className="feedback-score">{feedback.score}<span>/100</span></div>
+                  <h3>Design feedback</h3>
+                  <p>{feedback.summary}</p>
+                  {feedback.category_scores && (
+                    <div className="score-breakdown">
+                      {Object.entries(feedback.category_scores).map(([category, score]) => (
+                        <div key={category}>
+                          <span>{category}</span>
+                          <strong>{score}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <h4>Strengths</h4>
+                  <ul>{feedback.strengths.map((item) => <li key={item}>{item}</li>)}</ul>
+                  <h4>Improvements</h4>
+                  <ul>{feedback.improvements.map((item) => <li key={item}>{item}</li>)}</ul>
+                  <h4>Next step</h4>
+                  <p>{feedback.next_step}</p>
+                </div>
+              )}
             </div>
           </aside>
         </div>

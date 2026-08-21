@@ -231,6 +231,150 @@
 
   .interview-step small { color: #64748b; }
 
+  .assistant-message {
+    margin-top: 20px;
+    padding: 14px;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    text-align: left;
+    background: white;
+  }
+
+  .assistant-message p {
+    margin: 5px 0 0;
+    color: #526176;
+    font-size: .9rem;
+    line-height: 1.45;
+  }
+
+  .assistant-message .panel-eyebrow {
+    margin: 0 0 6px;
+    color: #2563eb;
+    font-size: .72rem;
+  }
+
+  .grading-panel {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .grading-panel > button {
+    width: 100%;
+    padding: 11px 16px;
+    border: 0;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    background: #172033;
+    cursor: pointer;
+  }
+
+  .grading-panel > button:disabled { cursor: wait; opacity: .7; }
+  .grading-error { margin-top: 10px; color: #b42318; font-size: .85rem; }
+
+  .feedback-card {
+    margin-top: 16px;
+    padding: 18px;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    text-align: left;
+    background: white;
+  }
+
+  .feedback-score {
+    margin-bottom: 12px;
+    color: #2563eb;
+    font-size: 2rem;
+    font-weight: 800;
+  }
+
+  .feedback-score span { color: #64748b; font-size: .85rem; }
+  .score-breakdown {
+    display: grid;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f8fafc;
+  }
+
+  .score-breakdown div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: #526176;
+    font-size: .82rem;
+  }
+
+  .score-breakdown span { text-transform: capitalize; }
+  .score-breakdown strong { color: #172033; }
+  .feedback-card h3 { margin: 0 0 8px; }
+  .feedback-card h4 { margin: 16px 0 6px; }
+  .feedback-card p, .feedback-card li { color: #526176; line-height: 1.45; }
+  .feedback-card ul { margin: 0; padding-left: 18px; }
+
+  .stage-review {
+    margin-top: 14px;
+    padding: 15px;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    text-align: left;
+    background: white;
+  }
+
+  .stage-review p, .stage-review li {
+    color: #526176;
+    font-size: .88rem;
+    line-height: 1.45;
+  }
+
+  .stage-score-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+  }
+
+  .stage-score-row span { color: #526176; font-size: .85rem; }
+
+  .score-meter {
+    height: 9px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e2e8f0;
+  }
+
+  .score-meter span {
+    display: block;
+    height: 100%;
+    min-width: 3px;
+    border-radius: inherit;
+    transition: width .35s ease;
+  }
+
+  .score-meter .low { background: #dc2626; }
+  .score-meter .medium { background: #eab308; }
+  .score-meter .high { background: #16a34a; }
+
+  .stage-review h4 { margin: 14px 0 5px; }
+  .stage-review ul { margin: 0; padding-left: 18px; }
+
+  .stage-review button {
+    width: 100%;
+    margin-top: 16px;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 7px;
+    color: white;
+    font-weight: 700;
+    background: #2563eb;
+    cursor: pointer;
+  }
+
+  .stage-review button:disabled { cursor: not-allowed; opacity: .45; }
+
   @media (max-width: 950px) {
     .workspace { grid-template-columns: 130px minmax(0, 1fr); }
     .interview-panel { display: none; }

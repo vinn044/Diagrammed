@@ -15,4 +15,4 @@ class PracticeSessionAdmin(admin.ModelAdmin):
     list_display = ("user", "prompt", "status", "started_at", "completed_at")
     list_filter = ("status", "prompt")
     search_fields = ("user__username", "prompt__title")
-    readonly_fields = ("started_at", "updated_at")
+    readonly_fields = ("started_at", "updated_at", "graded_at")

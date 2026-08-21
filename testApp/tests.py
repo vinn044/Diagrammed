@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.db.models import ProtectedError
@@ -171,3 +172,41 @@ class PracticeSessionViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    @patch("testApp.views.grade_practice_session")
+    def test_grade_session_stores_structured_feedback(self, mock_grade):
+        practice_session = PracticeSession.objects.create(
+            user=self.user,
+            prompt=self.prompt,
+            diagram_data={"nodes": [{"id": "api"}], "edges": []},
+        )
+        feedback = {
+            "score": 82,
+            "summary": "A clear starting design.",
+            "strengths": ["Clear request flow"],
+            "improvements": ["Explain failure handling"],
+            "next_step": "Add a reliability strategy.",
+        }
+        mock_grade.return_value = feedback
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse("grade_session", args=[practice_session.id]))
+
+        practice_session.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(practice_session.ai_feedback, feedback)
+        self.assertEqual(practice_session.status, PracticeSession.Status.COMPLETED)
+        self.assertIsNotNone(practice_session.graded_at)
+
+    @patch("testApp.views.grade_practice_session")
+    def test_grade_session_requires_a_saved_diagram(self, mock_grade):
+        practice_session = PracticeSession.objects.create(
+            user=self.user,
+            prompt=self.prompt,
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse("grade_session", args=[practice_session.id]))
+
+        self.assertEqual(response.status_code, 400)
+        mock_grade.assert_not_called()
