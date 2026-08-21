@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: diagrammed
+    runtime: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn test.wsgi:application
+    healthCheckPath: /
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5.6-luna
